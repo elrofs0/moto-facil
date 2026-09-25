@@ -11,8 +11,20 @@ const PEAK_WINDOWS = [
   { startMin: 17 * 60 + 30, endMin: 19 * 60 + 30 }, // 17:30–19:30
 ];
 
+// O servidor roda em UTC; os horários de pico são de Brasília. getHours()
+// sozinho aplicava o pico 3h adiantado (08:30–10:30 e 14:30–16:30).
+const BRAZIL_TIME = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Sao_Paulo', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+});
+
+function minutesOfDayInBrazil(date) {
+  const parts = BRAZIL_TIME.formatToParts(date);
+  const get = (type) => parseInt(parts.find((p) => p.type === type).value, 10);
+  return get('hour') * 60 + get('minute');
+}
+
 function isPeakHour(date = new Date()) {
-  const minutesOfDay = date.getHours() * 60 + date.getMinutes();
+  const minutesOfDay = minutesOfDayInBrazil(date);
   return PEAK_WINDOWS.some((w) => minutesOfDay >= w.startMin && minutesOfDay <= w.endMin);
 }
 

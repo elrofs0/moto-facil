@@ -47,20 +47,20 @@ async function main() {
   let rainOn = false;
   settingsService.isRainModeOn = async () => rainOn;
 
-  const offPeakOffRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T09:00:00') });
+  const offPeakOffRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T09:00:00-03:00') });
   const expectedBase = 5 + 10 * 2 + 20 * 0.3; // 31
   assert(Math.abs(offPeakOffRain.price - expectedBase) < 0.01, `preço base sem pico/chuva = R$ ${expectedBase.toFixed(2)} (obtido: ${offPeakOffRain.price})`);
 
-  const peakOffRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T12:00:00') });
+  const peakOffRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T12:00:00-03:00') });
   assert(Math.abs(peakOffRain.price - expectedBase * 1.3) < 0.01, 'preço em horário de pico aplica multiplicador 1.3x');
   assert(peakOffRain.breakdown.peakApplied === true, 'breakdown indica peakApplied=true no horário de pico');
 
   rainOn = true;
-  const peakAndRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T18:00:00') });
+  const peakAndRain = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T18:00:00-03:00') });
   assert(Math.abs(peakAndRain.price - expectedBase * 1.3 * 1.15) < 0.01, 'pico + chuva acumulam os dois multiplicadores (1.3 × 1.15)');
   rainOn = false;
 
-  const offPeakTime = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T15:00:00') });
+  const offPeakTime = await pricingService.calculatePrice(10, 20, { at: new Date('2026-01-01T15:00:00-03:00') });
   assert(Math.abs(offPeakTime.price - expectedBase) < 0.01, 'fora do horário de pico não aplica multiplicador');
 
   // ---------------- 2. Segmentação passageiro vs. entregas ----------------
