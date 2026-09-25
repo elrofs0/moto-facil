@@ -2,5 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-body { font-family: 'Work Sans', sans-serif; }
-h1, h2, h3 { font-family: 'Fraunces', serif; }
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  background-color: #F6F1E7;
+}
+
+h1, h2, h3 {
+  font-family: 'Fraunces', serif;
+  letter-spacing: -0.01em;
+}
+
+/* Foco visível e consistente em toda a interface — acessibilidade,
+   não decoração. */
+:focus-visible {
+  outline: 2px solid #DB8E2E;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Barra de rolagem discreta, na paleta do produto. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(33, 29, 23, 0.18);
+  border-radius: 999px;
+  border: 2px solid #F6F1E7;
+}
+
+/* Animação única de entrada da rota no painel de login — o único
+   momento de movimento não solicitado da interface inteira. */
+@keyframes draw-route {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ride-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+
+.route-path {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: draw-route 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards;
+}
+
+.pulse-dot {
+  animation: ride-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .pulse-dot {
+    animation: none;
+  }
+}

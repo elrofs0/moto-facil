@@ -6,8 +6,8 @@ const { AppError } = require('../middleware/errorHandler');
 // garante que exista sempre um registro auditável em wallet_transactions
 // para cada centavo que muda de mãos.
 
-async function creditDriver(driverId, amount, reason, rideId = null) {
-  return sequelize.transaction(async (t) => {
+async function creditDriver(driverId, amount, reason, rideId = null, externalTransaction = null) {
+  const run = async (t) => {
     const driver = await Driver.findByPk(driverId, { transaction: t, lock: t.LOCK.UPDATE });
     if (!driver) throw new AppError('Motoboy não encontrado', 404);
 
@@ -24,20 +24,25 @@ async function creditDriver(driverId, amount, reason, rideId = null) {
     }, { transaction: t });
 
     return newBalance;
-  });
+  };
+
+  return externalTransaction ? run(externalTransaction) : sequelize.transaction(run);
 }
 
-// Debita a comissão da plataforma do saldo do motoboy — usado quando a
-// corrida é paga em dinheiro direto ao motoboy (o cliente não paga a
-// plataforma, então a plataforma cobra a comissão do saldo do motoboy).
-async function debitDriver(driverId, amount, reason, rideId = null) {
-  return sequelize.transaction(async (t) => {
+// Debita valor do saldo do motoboy — usado tanto pra comissão de corrida
+// em dinheiro quanto pro lead fee cobrado no aceite de qualquer corrida.
+// Aceita uma transação externa (externalTransaction) pra poder rodar
+// "tudo ou nada" junto com outra operação (ex: travar a corrida) — sem
+// isso, debitar o lead e aceitar a corrida seriam duas operações
+// separadas, com risco de uma dar certo e a outra não.
+async function debitDriver(driverId, amount, reason, rideId = null, externalTransaction = null) {
+  const run = async (t) => {
     const driver = await Driver.findByPk(driverId, { transaction: t, lock: t.LOCK.UPDATE });
     if (!driver) throw new AppError('Motoboy não encontrado', 404);
 
     const currentBalance = parseFloat(driver.wallet_balance);
     if (currentBalance < amount) {
-      throw new AppError('Saldo insuficiente na carteira do motoboy', 422);
+      throw new AppError('SALDO_INSUFICIENTE:Saldo insuficiente na carteira. Recarregue pra continuar recebendo corridas.', 422);
     }
 
     const newBalance = currentBalance - parseFloat(amount);
@@ -53,16 +58,19 @@ async function debitDriver(driverId, amount, reason, rideId = null) {
     }, { transaction: t });
 
     return newBalance;
-  });
+  };
+
+  return externalTransaction ? run(externalTransaction) : sequelize.transaction(run);
 }
 
-// Um motoboy só pode receber ofertas de corrida em dinheiro se tiver saldo
-// suficiente para cobrir a comissão — sem essa checagem, o modelo de
-// comissão em corridas de dinheiro não se sustenta (ver README).
-async function hasSufficientBalanceForCommission(driverId, estimatedCommission) {
+// Um motoboy só pode receber ofertas de corrida se tiver saldo suficiente
+// pra cobrir o lead fee daquela oferta — sem essa checagem no despacho,
+// ele receberia a oferta e só descobriria que não tem saldo na hora de
+// aceitar, o que é uma experiência ruim e evitável.
+async function hasSufficientBalance(driverId, amount) {
   const driver = await Driver.findByPk(driverId);
   if (!driver) return false;
-  return parseFloat(driver.wallet_balance) >= parseFloat(estimatedCommission);
+  return parseFloat(driver.wallet_balance) >= parseFloat(amount);
 }
 
-module.exports = { creditDriver, debitDriver, hasSufficientBalanceForCommission };
+module.exports = { creditDriver, debitDriver, hasSufficientBalance };

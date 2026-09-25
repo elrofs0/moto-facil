@@ -19,13 +19,20 @@ export const auth = {
 
 export const rides = {
   active: () => api.get('/rides/active'),
+  scheduled: () => api.get('/rides/agendadas'),
   all: (params) => api.get('/rides', { params }),
   complete: (id) => api.post(`/rides/${id}/concluir`),
+  cancel: (id) => api.post(`/rides/${id}/cancelar`),
 };
 
 export const drivers = {
   list: (status) => api.get('/drivers', { params: status ? { status } : {} }),
+  documents: (id) => api.get(`/drivers/${id}/documentos`),
+  create: (payload) => api.post('/drivers', payload),
+  update: (id, payload) => api.patch(`/drivers/${id}`, payload),
   approve: (id) => api.post(`/drivers/${id}/aprovar`),
+  approveAlvara: (id) => api.post(`/drivers/${id}/alvara/aprovar`),
+  rejectAlvara: (id) => api.post(`/drivers/${id}/alvara/rejeitar`),
   updateStatus: (id, status) => api.patch(`/drivers/${id}/status`, { status }),
   adjustWallet: (id, amount, reason) => api.post(`/drivers/${id}/carteira/ajustar`, { amount, reason }),
   walletHistory: (id) => api.get(`/drivers/${id}/carteira/historico`),
@@ -39,6 +46,11 @@ export const users = {
 
 export const admin = {
   billing: (params) => api.get('/admin/faturamento', { params }),
+};
+
+export const referrals = {
+  summary: () => api.get('/referrals'),
+  markPaid: (driverId) => api.post(`/referrals/${driverId}/pagar`),
 };
 
 export default api;

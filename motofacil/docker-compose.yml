@@ -1,47 +1,134 @@
-version: "3.9"
-
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_NAME:-motofacil}
-      POSTGRES_USER: ${DB_USER:-motofacil}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-troque_esta_senha}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    volumes:
-      - redis-data:/data
-    ports:
-      - "6379:6379"
-
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+    container_name: motofacil-backend
     restart: unless-stopped
-    env_file: .env
-    environment:
-      DB_HOST: postgres
-      REDIS_URL: redis://redis:6379
-    depends_on:
-      - postgres
-      - redis
     ports:
-      - "3000:3000"
+      - "3001:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    depends_on:
+      motofacil-db:
+        condition: service_healthy
+    networks:
+      - motofacil_network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: https://api.motofacil.tech/api
+    container_name: motofacil-frontend
     restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "5174:80"
+    networks:
+      - motofacil_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: motofacil-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - motofacil_network
+
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    container_name: evolution_api
+    restart: unless-stopped
+    environment:
+      - SERVER_TYPE=http
+      - SERVER_PORT=8080
+      - SERVER_URL=https://evolution.motofacil.tech
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=motofacil2026
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:postgres@motofacil-db-evolution:5432/evolution?schema=public
+      - WEBHOOK_GLOBAL_ENABLED=true
+      - WEBHOOK_GLOBAL_URL=http://backend:3000/api/webhooks/evolution
+      - WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS=false
+      # Workaround do issue #2437 (QR nunca aparece / conecta e cai com
+      # erro 515): sem isso a Evolution tenta usar cache via Redis (que
+      # não está configurado pra ela) e entra em loop de erro bem na hora
+      # de gerar as pre-keys do QR.
+      - CACHE_REDIS_ENABLED=false
+      - CACHE_LOCAL_ENABLED=true
+      - DATABASE_SAVE_DATA_CHATS=false
+      - DATABASE_SAVE_DATA_CONTACTS=false
+      - DATABASE_SAVE_DATA_HISTORIC=false
+      - DATABASE_SAVE_DATA_LABELS=false
+      # A versão do protocolo do WhatsApp embutida na imagem está velha
+      # (Baileys version env antigo) e o WhatsApp rejeita a conexão antes
+      # do QR sair, causando reconexão em loop. Fixa uma versão válida.
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1033773198
+      - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE
+    ports:
+      - "8080:8080"
+    depends_on:
+      motofacil-db-evolution:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - motofacil_network
+
+  motofacil-db-evolution:
+    image: postgres:15-alpine
+    container_name: motofacil-db-evolution
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=evolution
+    volumes:
+      - evolution-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - motofacil_network
+
+  # Postgres dedicado ao MotoFácil (users, drivers, rides, wallet, etc.) —
+  # separado do Postgres da Evolution API, que só guarda dados internos
+  # da sessão/instância do WhatsApp.
+  motofacil-db:
+    image: postgres:15-alpine
+    container_name: motofacil-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER:-motofacil}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?defina DB_PASSWORD no .env da raiz}
+      - POSTGRES_DB=${DB_NAME:-motofacil}
+    volumes:
+      - motofacil-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-motofacil}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - motofacil_network
+
+networks:
+  motofacil_network:
+    driver: bridge
 
 volumes:
-  postgres-data:
   redis-data:
+  evolution-db-data:
+  motofacil-db-data:

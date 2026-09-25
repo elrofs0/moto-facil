@@ -16,6 +16,23 @@ const listActiveRides = asyncHandler(async (req, res) => {
   res.json(rides);
 });
 
+// Usado pelo painel administrativo — aba "Agendamentos": corridas/entregas
+// marcadas pra horário futuro, ainda não despachadas (ver
+// rideService.sweepScheduledRides). Ordenado pela data agendada, não pela
+// criação — o que importa aqui é "o que vem primeiro", não "o que foi
+// pedido primeiro".
+const listScheduledRides = asyncHandler(async (req, res) => {
+  const rides = await Ride.findAll({
+    where: { status: 'scheduled' },
+    include: [
+      { model: User, as: 'client', attributes: ['id', 'name', 'whatsapp'] },
+      { model: Driver, as: 'preferredDriver', attributes: ['id', 'name', 'username'] },
+    ],
+    order: [['scheduled_for', 'ASC']],
+  });
+  res.json(rides);
+});
+
 const listAllRides = asyncHandler(async (req, res) => {
   const { page = 1, limit = 25, status } = req.query;
   const where = status ? { status } : {};
@@ -46,9 +63,18 @@ const getRideByTrackingCode = asyncHandler(async (req, res) => {
   res.json(ride);
 });
 
+// O lead já foi cobrado do motoboy no ACEITE da corrida (rideService.
+// acceptRide) — concluir pelo painel só fecha o status, sem cobrar nada.
 const completeRide = asyncHandler(async (req, res) => {
   const ride = await rideService.completeRide(req.params.id);
   res.json(ride);
 });
 
-module.exports = { listActiveRides, listAllRides, getRideByTrackingCode, completeRide };
+// Cancelamento manual pelo admin — mesma lógica de estorno/aviso usada pelo
+// comando "cancelar" do cliente no WhatsApp (ver rideService.cancelRide).
+const cancelRide = asyncHandler(async (req, res) => {
+  const ride = await rideService.cancelRide(req.params.id, 'Cancelada pelo administrador.');
+  res.json(ride);
+});
+
+module.exports = { listActiveRides, listScheduledRides, listAllRides, getRideByTrackingCode, completeRide, cancelRide };
