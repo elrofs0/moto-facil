@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PedidoFácil – Pedidos e entregas do seu negócio no WhatsApp</title>
+<meta name="description" content="Organize pedidos, entregadores e escalas do seu negócio pelo WhatsApp: restaurantes, farmácias, ferragens, pet shops e qualquer comércio com delivery. Mensalidade fixa, sem comissão por pedido, com entregador reserva da rede MotoFácil. Santa Maria/RS.">
+<meta property="og:title" content="PedidoFácil – Pedidos e entregas no WhatsApp">
+<meta property="og:description" content="Mensalidade fixa, sem comissão por pedido. Feito em Santa Maria/RS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Paleta MotoFácil: verde profundo + âmbar */
+:root{
+  --ink:#10241C; --ink2:#17392C; --paper:#F7F5EE; --paper2:#EEF3EE; --card:#FFFDF8;
+  --line:#E2DDCF; --muted:#4A5A52; --soft:#BFD8CC; --green:#1F7A55; --green-bright:#3DDC97; --amber:#E8A83A;
+  --display:'Rubik', Arial, sans-serif; --body:'Nunito Sans', Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--body);color:var(--ink);background:var(--paper);font-size:18px;line-height:1.6}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0}
+.eyebrow{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px;text-decoration:none;padding:16px 26px;border-radius:12px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.btn-amber{background:var(--amber);color:var(--ink)}
+.btn-ghost{border:2px solid var(--soft);color:var(--paper)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+
+/* Topo */
+.nav{background:var(--ink);color:var(--paper)}
+.nav .wrap{display:flex;justify-content:space-between;align-items:center;padding-block:18px;gap:16px}
+.logo{font-family:var(--display);font-weight:800;font-size:22px;text-decoration:none}
+.logo span{color:var(--green-bright)}
+.nav a.small{font-size:16px;font-weight:700;text-decoration:none;color:var(--amber)}
+
+/* Hero */
+.hero{background:radial-gradient(circle at 85% 10%,#1f5c45 0%,transparent 45%),linear-gradient(160deg,var(--ink) 0%,var(--ink2) 100%);color:var(--paper);padding-block:72px 88px}
+.hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(38px,6vw,62px);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--green-bright)}
+.hero p.lead{font-size:20px;color:var(--soft);margin-top:20px;max-width:34ch}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.hero .tag{display:inline-block;margin-bottom:18px;font-family:var(--display);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+/* Mock de conversa */
+.chat{background:#0B1A14;border:1px solid #2A4A3C;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chat .hd{font-size:14px;color:var(--soft);padding-bottom:10px;border-bottom:1px solid #2A4A3C}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.45}
+.msg.in{background:#1C3A2E;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.out{background:#1F7A55;align-self:flex-end;border-bottom-right-radius:4px}
+.msg small{display:block;opacity:.7;font-size:12px;margin-top:4px}
+
+/* Seções */
+section.block{padding-block:80px}
+.head{display:flex;flex-direction:column;gap:12px;margin-bottom:40px;max-width:720px}
+.head h2{font-size:clamp(30px,4vw,44px)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{font-size:22px}
+.card p{color:var(--muted);font-size:17px}
+.num{font-family:var(--display);font-weight:800;font-size:40px;color:var(--green)}
+.card.amber{background:var(--amber);border-color:var(--amber)}
+.card.amber p,.card.amber .num{color:#2A2410}
+.alt{background:var(--paper2)}
+
+/* Rede */
+.dark{background:var(--ink);color:var(--paper)}
+.dark .eyebrow{color:var(--amber)}
+.dark .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.dark .cols div{border-top:4px solid var(--amber);padding-top:20px}
+.dark .cols h3{font-size:22px;margin-bottom:8px}
+.dark .cols p{color:var(--soft)}
+
+/* Planos */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.plan{border-radius:22px;padding:34px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.plan.basic{background:var(--card);border:1px solid var(--line)}
+.plan.full{background:var(--ink);color:var(--paper)}
+.plan h3{font-size:26px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pill{font-size:13px;font-family:var(--body);font-weight:700;background:var(--amber);color:var(--ink);padding:6px 12px;border-radius:99px}
+.price{font-family:var(--display);font-weight:800;font-size:52px;font-variant-numeric:tabular-nums}
+.price small{font-size:20px;font-weight:500;opacity:.7}
+.plan ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.plan.basic li{color:var(--muted)}
+.plan.full li{color:var(--soft)}
+.plan .btn{align-self:flex-start;margin-top:8px}
+.plan.basic .btn{background:var(--ink);color:var(--paper)}
+.note{margin-top:20px;color:var(--muted);font-size:16px}
+
+/* Segmentos */
+.segs{background:var(--paper2);padding-block:22px;border-bottom:1px solid var(--line)}
+.segs .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.segs span{font-family:var(--display);font-weight:500;color:var(--green)}
+.segs ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.segs li{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:15px;font-weight:600}
+/* FAQ */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+details+details{margin-top:12px}
+summary{cursor:pointer;font-family:var(--display);font-weight:500;font-size:19px}
+details p{margin-top:10px;color:var(--muted)}
+
+/* CTA final */
+.final{background:var(--amber);padding-block:72px}
+.final .wrap{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+.final h2{font-size:clamp(30px,4vw,46px);max-width:18ch}
+.final .btn{background:var(--ink);color:var(--paper)}
+footer{background:var(--ink);color:var(--soft);font-size:15px;padding-block:28px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* WhatsApp flutuante */
+.float{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));background:#25D366;color:#0B1A14;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:10}
+
+@media (max-width:900px){
+  .hero .wrap,.plans,.grid2{grid-template-columns:1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .dark .cols{grid-template-columns:1fr}
+}
+@media (max-width:520px){ .grid4{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#">Pedido<span>Fácil</span></a>
+    <a class="small js-wa" href="#" data-msg="Olá! Quero conhecer o PedidoFácil.">Falar no WhatsApp</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="tag">Santa Maria/RS · Integrado ao MotoFácil</span>
+      <h1>Pedidos e entregas do seu negócio, <em>organizados no WhatsApp</em>.</h1>
+      <p class="lead">Mensalidade fixa, sem comissão por pedido. E quando o seu entregador estiver ocupado, um motoboy da rede MotoFácil assume.</p>
+      <div class="ctas">
+        <a class="btn btn-amber js-wa" href="#" data-msg="Olá! Quero uma demonstração do PedidoFácil para o meu negócio.">Quero uma demonstração</a>
+        <a class="btn btn-ghost" href="#planos">Ver planos</a>
+      </div>
+    </div>
+    <div class="chat" aria-label="Exemplo de conversa de pedido no WhatsApp">
+      <div class="hd">Exemplo · WhatsApp da loja</div>
+      <div class="msg in">Oi! Quero 2 X-salada e uma Coca 2L pra Rua do Acampamento<small>19:42</small></div>
+      <div class="msg out">Pedido recebido! Já está na cozinha 👨‍🍳<small>19:42</small></div>
+      <div class="msg out">Saiu para entrega com o Carlos 🛵<small>20:05</small></div>
+      <div class="msg in">Chegou, obrigado!<small>20:18</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="segs">
+  <div class="wrap">
+    <span>Para quem faz entrega:</span>
+    <ul><li>Restaurantes e lanchonetes</li><li>Farmácias</li><li>Ferragens</li><li>Pet shops</li><li>Gás e água</li><li>Mercados e conveniências</li></ul>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">O dia a dia hoje</span>
+      <h2>O cliente já pede pelo WhatsApp. O difícil é dar conta.</h2>
+    </div>
+    <div class="grid4">
+      <div class="card"><h3>Pedido no papel</h3><p>Mensagens misturadas, pedido esquecido, endereço errado.</p></div>
+      <div class="card"><h3>Entregador ocupado</h3><p>Na hora do pico, o pedido fica pronto e ninguém leva.</p></div>
+      <div class="card"><h3>"Já saiu meu pedido?"</h3><p>Tempo perdido respondendo em vez de produzir.</p></div>
+      <div class="card"><h3>Comissão dos apps</h3><p>Uma parte de cada pedido vai embora para a plataforma.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="como">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Como funciona</span>
+      <h2>Do pedido à entrega, sem sair do WhatsApp.</h2>
+    </div>
+    <div class="grid4">
+      <div class="card"><span class="num">1</span><h3>Cliente pede</h3><p>Pelo WhatsApp da loja, como já faz hoje.</p></div>
+      <div class="card"><span class="num">2</span><h3>Entra no painel</h3><p>Todos os pedidos em um lugar só, com status.</p></div>
+      <div class="card"><span class="num">3</span><h3>Seu entregador leva</h3><p>O sistema chama primeiro o motoboy da casa.</p></div>
+      <div class="card amber"><span class="num">4</span><h3>Reserva MotoFácil</h3><p>Ninguém livre? Um motoboy da rede assume a entrega.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">O que você recebe</span>
+      <h2>Um painel com a cara do seu negócio.</h2>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Sua marca</h3><p>Logo, dados e endereço próprio no painel.</p></div>
+      <div class="card"><h3>Pedidos em tempo real</h3><p>Cada pedido com status, do recebido ao entregue.</p></div>
+      <div class="card"><h3>Entregadores e escalas</h3><p>Quem trabalha em cada turno, sem planilha.</p></div>
+      <div class="card"><h3>Suporte dentro do painel</h3><p>Chat direto com a equipe quando precisar.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block dark">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">O diferencial</span>
+      <h2>Nunca mais pedido pronto esperando entregador.</h2>
+    </div>
+    <div class="cols">
+      <div><h3>Motoboys verificados</h3><p>Cadastro com CNH, documento da moto e selfie.</p></div>
+      <div><h3>Só quando precisar</h3><p>A rede MotoFácil entra apenas se o entregador da casa não estiver livre.</p></div>
+      <div><h3>Valor fixo por entrega</h3><p>Preço combinado antes, pago direto ao motoboy.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="planos">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Planos</span>
+      <h2>Mensalidade fixa. Zero comissão por pedido.</h2>
+    </div>
+    <div class="plans">
+      <div class="plan basic">
+        <h3>Básico</h3>
+        <div class="price">R$ 99<small>/mês</small></div>
+        <ul>
+          <li>Painel de pedidos com sua marca</li>
+          <li>Entregadores e escalas da casa</li>
+          <li>Integração com o WhatsApp</li>
+          <li>Suporte no painel</li>
+        </ul>
+        <a class="btn js-wa" href="#" data-msg="Olá! Tenho interesse no plano Básico do PedidoFácil.">Quero o Básico</a>
+      </div>
+      <div class="plan full">
+        <h3>Completo <span class="pill">Recomendado</span></h3>
+        <div class="price">R$ 149<small>/mês</small></div>
+        <ul>
+          <li>Tudo do Básico</li>
+          <li>Acesso à rede de motoboys MotoFácil</li>
+          <li>Despacho automático de entregador reserva</li>
+          <li>Entregas da rede com valor fixo por corrida</li>
+        </ul>
+        <a class="btn btn-amber js-wa" href="#" data-msg="Olá! Tenho interesse no plano Completo do PedidoFácil.">Quero o Completo</a>
+      </div>
+    </div>
+    <p class="note">No plano Completo, cada entrega feita por motoboy da rede é paga à parte, com valor fixo por corrida, direto ao motoboy.</p>
+  </div>
+</section>
+
+<section class="block alt">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Dúvidas</span>
+      <h2>Perguntas frequentes</h2>
+    </div>
+    <details><summary>Serve para farmácia, ferragem ou pet shop?</summary><p>Sim. O PedidoFácil funciona para qualquer comércio que recebe pedidos pelo WhatsApp e faz entrega: restaurantes, farmácias, ferragens, pet shops, distribuidoras de gás e água, mercados e outros.</p></details>
+    <details><summary>Preciso trocar meu número de WhatsApp?</summary><p>Não. O PedidoFácil funciona com o WhatsApp que seus clientes já conhecem.</p></details>
+    <details><summary>Vocês cobram taxa por pedido?</summary><p>Não cobramos comissão por pedido: você paga só a mensalidade do plano escolhido.</p></details>
+    <details><summary>Preciso ter entregador próprio?</summary><p>Não. No plano Completo, a rede de motoboys do MotoFácil pode fazer as suas entregas.</p></details>
+    <details><summary>Quem configura o sistema?</summary><p>A gente configura o painel junto com você, com a sua logo e os seus dados.</p></details>
+    <details><summary>O que vem por aí?</summary><p>Status do preparo, catálogo de produtos próprio e integração com o iFood estão em desenvolvimento. Os primeiros clientes ajudam a decidir as prioridades.</p></details>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Seu negócio pode estar usando esta semana.</h2>
+    <a class="btn js-wa" href="#" data-msg="Olá! Quero começar a usar o PedidoFácil.">Falar no WhatsApp</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>PedidoFácil · Santa Maria/RS</span>
+    <span>Parte do ecossistema <a href="https://motofacil.tech/pedir.html">MotoFácil</a></span>
+  </div>
+</footer>
+
+<a class="float js-wa" href="#" data-msg="Olá! Quero conhecer o PedidoFácil." aria-label="Falar no WhatsApp">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2c.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3Z"/></svg>
+</a>
+
+<script>
+// Troque pelo número de WhatsApp de vendas do PedidoFácil (DDI + DDD + número, só dígitos)
+const WHATSAPP = '5555991448288';
+document.querySelectorAll('.js-wa').forEach(a => {
+  const msg = a.dataset.msg || 'Olá! Quero conhecer o PedidoFácil.';
+  a.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
+  a.target = '_blank';
+  a.rel = 'noopener';
+});
+</script>
+</body>
+</html>
