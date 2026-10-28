@@ -28,8 +28,7 @@
   <p class="ask">Para começar seu turno, toque abaixo e permita o acesso à localização. Assim conseguimos te enviar as corridas mais próximas.</p>
   <button id="btn">Fazer check-in e compartilhar localização</button>
   <div id="status"></div>
-  <a id="zap" class="btn" href="#">Enviar pelo WhatsApp</a>
-  <p class="small">Sua localização só é enviada se você permitir e tocar em enviar. Usada apenas para te mandar corridas próximas durante o turno.</p>
+  <p class="small">Ao tocar, o celular vai pedir permissão de localização. Se você permitir, o WhatsApp abre sozinho com sua posição pronta para enviar. Usada apenas para te mandar corridas próximas durante o turno.</p>
 </div>
 <script>
   // Troque pelo número do WhatsApp do MotoFácil (com 55 + DDD, só números)
@@ -37,13 +36,13 @@
 
   const btn = document.getElementById("btn");
   const status = document.getElementById("status");
-  const zap = document.getElementById("zap");
 
   btn.addEventListener("click", () => {
     if (!navigator.geolocation) {
       status.textContent = "Seu navegador não suporta localização.";
       return;
     }
+    btn.disabled = true;
     status.textContent = "Buscando sua localização...";
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -51,14 +50,16 @@
         const lng = pos.coords.longitude.toFixed(6);
         const prec = Math.round(pos.coords.accuracy);
         const mapa = `https://www.google.com/maps?q=${lat},${lng}`;
-        status.innerHTML = `✅ Check-in feito<br>Precisão: ~${prec} m<br><a href="${mapa}" target="_blank">Ver no mapa</a>`;
+        status.innerHTML = `✅ Check-in feito<br>Precisão: ~${prec} m<br>Abrindo o WhatsApp...`;
         const msg = `Bom dia! Check-in feito. Minha localização: ${mapa} (precisão ~${prec} m)`;
-        zap.href = `https://wa.me/${NUMERO}?text=${encodeURIComponent(msg)}`;
-        zap.style.display = "block";
+        const link = `https://wa.me/${NUMERO}?text=${encodeURIComponent(msg)}`;
+        window.location.href = link;
+        btn.disabled = false;
       },
       (err) => {
         const msgs = {1:"Você não permitiu o acesso à localização.",2:"Não consegui determinar sua posição.",3:"Demorou demais. Tente de novo."};
         status.textContent = msgs[err.code] || "Erro ao obter localização.";
+        btn.disabled = false;
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
