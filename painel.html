@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MotoFácil - Painel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{--bg:#1c1f26;--card:#262b35;--accent:#f5a000;--text:#eceff4;--muted:#8b96a5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:14px 16px;background:var(--card);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  header h1{font-size:1.1rem;margin:0}
+  header .info{font-size:.8rem;color:var(--muted)}
+  #map{height:calc(100vh - 56px);width:100%}
+  #gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:16px;z-index:9999}
+  #gate input{padding:12px;border-radius:10px;border:1px solid #3a4150;background:var(--card);color:var(--text);width:260px;max-width:80vw}
+  #gate button{padding:12px 20px;border-radius:10px;border:0;background:var(--accent);color:#1c1f26;font-weight:600;cursor:pointer}
+  #gate p{color:var(--muted);font-size:.85rem}
+  .leaflet-popup-content{font-family:system-ui,sans-serif;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <p>Painel MotoFácil — acesso restrito</p>
+  <input id="chave" type="password" placeholder="Senha do painel">
+  <button id="entrar">Entrar</button>
+</div>
+
+<header style="display:none" id="header">
+  <h1>🏍️ Painel MotoFácil</h1>
+  <div class="info" id="resumo">Carregando...</div>
+</header>
+<div id="map" style="display:none"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // URL do Apps Script (a mesma usada na página de check-in)
+  const APPS_SCRIPT_URL = "COLE_AQUI_A_URL_DO_APP_DA_WEB";
+
+  const gate = document.getElementById("gate");
+  const header = document.getElementById("header");
+  const mapDiv = document.getElementById("map");
+  const resumo = document.getElementById("resumo");
+  const chaveInput = document.getElementById("chave");
+
+  let map, markersLayer;
+  let chave = sessionStorage.getItem("motofacil_painel_chave") || "";
+
+  document.getElementById("entrar").addEventListener("click", () => {
+    chave = chaveInput.value.trim();
+    if (!chave) return;
+    sessionStorage.setItem("motofacil_painel_chave", chave);
+    carregar();
+  });
+
+  async function carregar() {
+    try {
+      const resp = await fetch(`${APPS_SCRIPT_URL}?key=${encodeURIComponent(chave)}`);
+      const data = await resp.json();
+      if (data.error) {
+        alert("Senha incorreta.");
+        sessionStorage.removeItem("motofacil_painel_chave");
+        return;
+      }
+      gate.style.display = "none";
+      header.style.display = "flex";
+      mapDiv.style.display = "block";
+      if (!map) {
+        map = L.map("map").setView([-29.6842, -53.8069], 13); // Santa Maria/RS
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
+      }
+      desenharPontos(data);
+      setTimeout(carregar, 30000); // atualiza a cada 30s
+    } catch (e) {
+      resumo.textContent = "Erro ao carregar dados.";
+    }
+  }
+
+  function desenharPontos(data) {
+    markersLayer.clearLayers();
+
+    // mantém só o check-in mais recente de cada motoboy
+    const ultimos = {};
+    data.forEach(c => {
+      const atual = ultimos[c.motoboy];
+      if (!atual || new Date(c.hora) > new Date(atual.hora)) {
+        ultimos[c.motoboy] = c;
+      }
+    });
+
+    const pontos = Object.values(ultimos);
+    const bounds = [];
+
+    pontos.forEach(c => {
+      const marker = L.marker([c.lat, c.lng]).addTo(markersLayer);
+      const hora = new Date(c.hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      marker.bindPopup(`<b>${c.motoboy}</b><br>Check-in às ${hora}<br>Precisão ~${c.precisao}m`);
+      bounds.push([c.lat, c.lng]);
+    });
+
+    resumo.textContent = `${pontos.length} motoboy(s) ativo(s) · atualizado ${new Date().toLocaleTimeString("pt-BR")}`;
+
+    if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+  }
+
+  if (chave) {
+    chaveInput.value = chave;
+    carregar();
+  }
+</script>
+</body>
+</html>
